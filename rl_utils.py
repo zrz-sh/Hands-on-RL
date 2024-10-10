@@ -81,10 +81,11 @@ def train_off_policy_agent(env, agent, num_episodes, replay_buffer, minimal_size
 def compute_advantage(gamma, lmbda, td_delta):
     td_delta = td_delta.detach().numpy()
     advantage_list = []
-    advantage = 0.0
-    for delta in td_delta[::-1]:
+    advantage = 0.0 # 最后一个step的advantage为0
+    for delta in td_delta[::-1]: # 从后向前递推
         advantage = gamma * lmbda * advantage + delta
         advantage_list.append(advantage)
-    advantage_list.reverse()
+    advantage_list.reverse() # 转变成从前向后
+    # 因为这里每次只输入一整个traj，所以不用考虑中间可能done的step，否则需要加mask
     return torch.tensor(advantage_list, dtype=torch.float)
                 
